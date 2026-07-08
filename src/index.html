@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>IDC Launcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- Décor commun : éclats d'améthyste flottants -->
+  <div class="decor" aria-hidden="true">
+    <span class="shard shard-1"></span>
+    <span class="shard shard-2"></span>
+    <span class="shard shard-3"></span>
+    <span class="shard shard-4"></span>
+  </div>
+
+  <!-- Écran 1 : Connexion -->
+  <section id="ecran-connexion" class="ecran ecran--vertical">
+    <div class="marque">
+      <div class="marque-icone">IDC</div>
+      <p class="marque-nom">IDC LAUNCHER</p>
+    </div>
+    <p class="accroche">Ton accès au serveur, en un clic.</p>
+
+    <button id="btn-discord" class="btn-principal btn-discord">
+      <svg class="icone-discord" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+                fill="currentColor"
+                d="M19.3 5.3c-1.3-.6-2.7-1-4.1-1.2a.1.1 0 0 0-.1.05c-.18.32-.38.73-.52 1.06a15.3 15.3 0 0 0-4.6 0 8.9 8.9 0 0 0-.53-1.06.1.1 0 0 0-.1-.05c-1.4.22-2.8.62-4.1 1.2a.1.1 0 0 0-.05.04C2.9 9.1 2.2 12.8 2.5 16.4a.12.12 0 0 0 .05.09c1.7 1.28 3.36 2.05 4.98 2.56a.1.1 0 0 0 .12-.04c.38-.53.72-1.09 1.02-1.68a.1.1 0 0 0-.06-.15c-.54-.2-1.06-.46-1.55-.75a.1.1 0 0 1-.01-.17c.1-.08.21-.16.31-.24a.1.1 0 0 1 .1-.02c3.26 1.5 6.78 1.5 10 0a.1.1 0 0 1 .1.01c.1.09.2.17.31.25a.1.1 0 0 1-.01.17c-.5.29-1.02.55-1.56.75a.1.1 0 0 0-.06.15c.31.59.65 1.15 1.02 1.68a.1.1 0 0 0 .12.04c1.63-.51 3.29-1.28 5-2.56a.1.1 0 0 0 .04-.08c.36-4.15-.6-7.8-2.54-11.03a.08.08 0 0 0-.04-.04ZM9.2 14.15c-.98 0-1.78-.9-1.78-2s.79-2 1.78-2c1 0 1.8.91 1.78 2 0 1.1-.79 2-1.78 2Zm6.4 0c-.97 0-1.78-.9-1.78-2s.79-2 1.78-2c1 0 1.8.91 1.78 2 0 1.1-.78 2-1.78 2Z"
+        />
+      </svg>
+      Se connecter avec Discord
+    </button>
+    <p id="statut-auth" class="statut"></p>
+  </section>
+
+  <!-- Écran 2 : Choix du pseudo -->
+  <section id="ecran-pseudo" class="ecran ecran--vertical cache">
+    <div class="marque marque--compacte">
+      <div class="marque-icone">IDC</div>
+    </div>
+    <p id="bienvenue-discord" class="accroche"></p>
+    <div class="champ-pseudo">
+      <label for="input-pseudo">Pseudo Minecraft</label>
+      <input id="input-pseudo" type="text" placeholder="ex. Steve_du_92" autocomplete="off" />
+    </div>
+    <button id="btn-valider-pseudo" class="btn-principal">Continuer</button>
+  </section>
+
+  <!-- Écran 3 : Connecté / Jeu -->
+  <section id="ecran-connecte" class="ecran ecran--jeu cache">
+    <div class="jeu-fond" aria-hidden="true"></div>
+
+    <div class="jeu-entete">
+      <div class="profil">
+        <span class="profil-avatar" id="avatar-initiale">?</span>
+        <span class="profil-statut-dot"></span>
+        <span id="texte-connecte" class="profil-nom"></span>
+      </div>
+    </div>
+
+    <div class="jeu-corps">
+      <p class="jeu-eyebrow">Prêt à jouer</p>
+      <h1 class="jeu-titre">IDC</h1>
+      <p class="jeu-tagline">Le serveur t'attend. Un clic, et tu es en jeu.</p>
+      <button id="btn-jouer" class="btn-principal btn-jouer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+        Jouer
+      </button>
+    </div>
+  </section>
+
+  <p id="erreur" class="erreur cache"></p>
+</div>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
