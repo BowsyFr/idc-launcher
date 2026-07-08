@@ -1,7 +1,6 @@
 use oauth2::{
     AuthorizationCode, CsrfToken, PkceCodeChallenge, PkceCodeVerifier, RedirectUrl, TokenResponse,
 };
-use std::env;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
@@ -23,12 +22,13 @@ pub struct DiscordAuth {
 
 impl DiscordAuth {
     pub fn new() -> Self {
-        dotenv::dotenv().ok();
-
+        // Valeurs injectées au moment de la compilation par build.rs
+        // (lecture du .env -> cargo:rustc-env). Choix assumé : ces
+        // valeurs sont embarquées en clair dans le binaire final.
         Self {
-            client_id: env::var("DISCORD_CLIENT_ID").expect("DISCORD_CLIENT_ID must be set"),
-            client_secret: env::var("DISCORD_CLIENT_SECRET").expect("DISCORD_CLIENT_SECRET must be set"),
-            redirect_uri: env::var("DISCORD_REDIRECT_URI").expect("DISCORD_REDIRECT_URI must be set"),
+            client_id: env!("DISCORD_CLIENT_ID").to_string(),
+            client_secret: env!("DISCORD_CLIENT_SECRET").to_string(),
+            redirect_uri: env!("DISCORD_REDIRECT_URI").to_string(),
             pkce_verifier: Arc::new(Mutex::new(None)),
             csrf_token: Arc::new(Mutex::new(None)),
         }
@@ -41,7 +41,7 @@ impl DiscordAuth {
             oauth2::AuthUrl::new("https://discord.com/oauth2/authorize".to_string()).unwrap(),
             Some(oauth2::TokenUrl::new("https://discord.com/api/oauth2/token".to_string()).unwrap()),
         )
-        .set_redirect_uri(RedirectUrl::new(self.redirect_uri.clone()).unwrap())
+            .set_redirect_uri(RedirectUrl::new(self.redirect_uri.clone()).unwrap())
     }
 
     pub async fn get_auth_url(&self) -> (String, String) {

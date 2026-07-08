@@ -27,7 +27,10 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    dotenv::dotenv().ok();
+    // Plus besoin de dotenv::dotenv().ok() ici : les valeurs du .env sont
+    // maintenant embarquées au moment de la compilation (voir build.rs +
+    // discord_auth.rs / database.rs), donc disponibles au runtime sans
+    // dépendre d'un fichier .env présent à côté du binaire.
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

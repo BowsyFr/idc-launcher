@@ -1,5 +1,4 @@
 use sqlx::MySqlPool;
-use std::env;
 
 pub struct Database {
     pool: MySqlPool,
@@ -15,15 +14,13 @@ pub struct User {
 
 impl Database {
     pub async fn new() -> Result<Self, sqlx::Error> {
-        dotenv::dotenv().ok();
-
         let database_url = format!(
             "mysql://{}:{}@{}:{}/{}",
-            env::var("MYSQL_USER").expect("MYSQL_USER must be set"),
-            env::var("MYSQL_PASSWORD").expect("MYSQL_PASSWORD must be set"),
-            env::var("MYSQL_HOST").expect("MYSQL_HOST must be set"),
-            env::var("MYSQL_PORT").unwrap_or_else(|_| "3306".to_string()),
-            env::var("MYSQL_DATABASE").expect("MYSQL_DATABASE must be set")
+            env!("MYSQL_USER"),
+            env!("MYSQL_PASSWORD"),
+            env!("MYSQL_HOST"),
+            option_env!("MYSQL_PORT").unwrap_or("19855"),
+            env!("MYSQL_DATABASE")
         );
 
         let pool = MySqlPool::connect(&database_url).await?;
@@ -42,8 +39,8 @@ impl Database {
             )
             "#,
         )
-        .execute(&self.pool)
-        .await?;
+            .execute(&self.pool)
+            .await?;
 
         Ok(())
     }
@@ -52,9 +49,9 @@ impl Database {
         let row = sqlx::query_as::<_, (i64, String, String, chrono::DateTime<chrono::Utc>)>(
             "SELECT id, discord_id, username, created_at FROM users WHERE discord_id = ?",
         )
-        .bind(discord_id)
-        .fetch_optional(&self.pool)
-        .await?;
+            .bind(discord_id)
+            .fetch_optional(&self.pool)
+            .await?;
 
         Ok(row.map(|(id, discord_id, username, created_at)| User {
             id,
