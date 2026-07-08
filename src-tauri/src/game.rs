@@ -17,14 +17,6 @@ fn dossier_jeu() -> Result<PathBuf, String> {
     Ok(base.join("idc-launcher"))
 }
 
-/// Installe (si besoin) et lance Minecraft 1.21.1 + NeoForge 21.1.232
-/// pour le pseudo donné.
-///
-/// ATTENTION : cette fonction est bloquante (installation + attente de
-/// fermeture du process Java). Elle doit toujours être appelée depuis
-/// `tokio::task::spawn_blocking`, jamais directement dans une commande
-/// `async` — sinon elle gèlerait le runtime tokio partagé avec le reste
-/// de l'app (auth Discord, DB...).
 pub fn lancer_jeu_bloquant(pseudo: &str) -> Result<(), String> {
     let dossier = dossier_jeu()?;
 
