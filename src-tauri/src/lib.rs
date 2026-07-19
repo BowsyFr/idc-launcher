@@ -3,10 +3,12 @@ mod discord_auth;
 mod callback_server;
 mod game;
 mod commands;
+mod resources;
 
 use database::Database;
 use discord_auth::DiscordAuth;
 use callback_server::CallbackServer;
+use resources::ResourceManager;
 use std::sync::Arc;
 use tauri::Manager;
 use tokio::sync::Mutex;
@@ -19,10 +21,14 @@ use tokio::sync::Mutex;
 /// avec le serveur de callback : ce dernier échange lui-même le code
 /// contre un token dès qu'il arrive, pour pouvoir afficher le pseudo et
 /// l'avatar directement sur la page de confirmation dans le navigateur.
+///
+/// `resource_manager` gère le téléchargement et la synchronisation des
+/// ressources du jeu (mods, resource packs, configs, etc.)
 pub struct AppState {
     pub db: Mutex<Option<Database>>,
     pub discord_auth: Arc<DiscordAuth>,
     pub callback_server: CallbackServer,
+    pub resource_manager: Arc<ResourceManager>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -32,12 +38,29 @@ pub fn run() {
     // discord_auth.rs / database.rs), donc disponibles au runtime sans
     // dépendre d'un fichier .env présent à côté du binaire.
 
+    // Initialiser le gestionnaire de ressources avec la configuration par défaut
+    // (les URLs peuvent être modifiées via des variables d'environnement ou une config externe)
+    let resource_config = resources::ResourceConfig {
+        base_url: std::env::var("RESOURCE_SERVER_URL")
+            .unwrap_or_else(|_| env!("RESOURCES_SERVER").to_string()),
+        server_base_path: std::env::var("RESOURCE_BASE_PATH")
+            .unwrap_or_else(|_| "/base".to_string()),
+        server_updates_path: std::env::var("RESOURCE_UPDATES_PATH")
+            .unwrap_or_else(|_| "/updates".to_string()),
+    };
+    
+    let resource_manager = Arc::new(
+        ResourceManager::new(resource_config)
+            .expect("Impossible d'initialiser le gestionnaire de ressources")
+    );
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(AppState {
             db: Mutex::new(None),
             discord_auth: Arc::new(DiscordAuth::new()),
             callback_server: CallbackServer::new(),
+            resource_manager,
         })
         .setup(|app| {
             let handle = app.handle().clone();
@@ -69,6 +92,10 @@ pub fn run() {
             commands::get_user_by_discord_id,
             commands::create_user,
             commands::launch_game,
+            commands::sync_resources,
+            commands::check_resources_up_to_date,
+            commands::list_server_files,
+            commands::get_game_directory,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

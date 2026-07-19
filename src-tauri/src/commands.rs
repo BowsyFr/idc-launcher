@@ -1,5 +1,6 @@
 use crate::database::User;
 use crate::discord_auth::DiscordUser;
+use crate::resources::{ResourceManager, SyncResult, FileInfo};
 use crate::AppState;
 use tauri::State;
 
@@ -7,11 +8,13 @@ use tauri::State;
 /// (installation + attente du process Java) tourne dans un thread dédié
 /// via `spawn_blocking`, pour ne jamais geler le runtime tokio partagé
 /// avec l'auth Discord et la DB.
+///
+/// La synchronisation des ressources (mods, configs, etc.) se fait AVANT
+/// le lancement du jeu.
 #[tauri::command]
-pub async fn launch_game(username: String) -> Result<(), String> {
-    tokio::task::spawn_blocking(move || crate::game::lancer_jeu_bloquant(&username))
-        .await
-        .map_err(|e| format!("Erreur interne lors du lancement : {e}"))?
+pub async fn launch_game(username: String, state: State<'_, AppState>) -> Result<(), String> {
+    let resource_manager = state.resource_manager.clone();
+    crate::game::lancer_jeu_avec_ressources(username, resource_manager).await
 }
 
 /// Démarre le serveur de callback local et renvoie l'URL d'auth Discord
@@ -74,4 +77,43 @@ pub async fn create_user(
         Some(db) => db.create_user(&discord_id, &username).await.map_err(|e| e.to_string()),
         None => Err("Base de données non connectée".to_string()),
     }
+}
+
+/// Synchronise toutes les ressources du jeu (mods, resource packs, configs)
+/// - Installe le dossier base s'il n'existe pas
+/// - Synchronise toujours le dossier updates
+#[tauri::command]
+pub async fn sync_resources(
+    state: State<'_, AppState>,
+) -> Result<SyncResult, String> {
+    let manager = state.resource_manager.clone();
+    manager.sync_game_resources().await
+}
+
+/// Vérifie si les ressources sont à jour
+#[tauri::command]
+pub async fn check_resources_up_to_date(
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
+    let manager = state.resource_manager.clone();
+    manager.check_resources_up_to_date().await
+}
+
+/// Obtient la liste des fichiers disponibles sur le serveur pour un chemin donné
+/// (utile pour le débogage ou l'affichage dans l'UI)
+#[tauri::command]
+pub async fn list_server_files(
+    server_path: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<FileInfo>, String> {
+    let manager = &state.resource_manager;
+    let files = manager.fetch_remote_files(&server_path).await?;
+    Ok(files.into_values().collect())
+}
+
+/// Obtient le chemin du dossier de jeu
+#[tauri::command]
+pub async fn get_game_directory() -> Result<String, String> {
+    let path = ResourceManager::get_game_dir()?;
+    Ok(path.to_string_lossy().to_string())
 }
