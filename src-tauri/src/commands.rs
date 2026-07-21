@@ -121,6 +121,29 @@ pub async fn get_game_directory() -> Result<String, String> {
 // ============================================================================
 // Gestion des skins
 // ============================================================================
+//
+// IMPORTANT : l'URL de l'API skin est désormais embarquée à la COMPILATION
+// via env!(), exactement comme MYSQL_HOST/MYSQL_USER dans database.rs,
+// plutôt que lue à l'exécution via std::env::var().
+//
+// Avant, `std::env::var("SKIN_API_URL").unwrap_or_else(|_| "http://localhost:3228")`
+// retombait silencieusement sur localhost:3228 dès que l'app tournait en
+// dehors d'un `cargo run` avec le .env chargé dans le shell (typiquement le
+// binaire bundlé produit par `tauri build`) — l'app compilée n'a jamais accès
+// à ton .env local, contrairement au terminal où tu lances `cargo run`.
+//
+// Il faut donc que ton build.rs (le même qui forwarde déjà MYSQL_USER,
+// MYSQL_PASSWORD, MYSQL_HOST, MYSQL_DATABASE, RESOURCES_SERVER, etc. via
+// `println!("cargo:rustc-env=...")`) forwarde aussi SKIN_API_URL depuis ton
+// .env. Si `SKIN_API_URL` n'existe pas encore dans ton .env, ajoute par
+// exemple : SKIN_API_URL=https://ouepamal.fr/skin-api
+//
+// Si build.rs ne fait pas ça encore pour cette variable précise, la
+// compilation échouera avec une erreur explicite du type
+// "environment variable `SKIN_API_URL` not defined" — ce qui est justement
+// le comportement voulu : on préfère un échec net à la compilation plutôt
+// qu'un fallback silencieux vers localhost en prod.
+const SKIN_API_URL: &str = env!("SKIN_API_URL");
 
 /// Upload un skin pour un utilisateur
 #[tauri::command]
@@ -136,9 +159,6 @@ pub async fn upload_skin(
         .build()
         .map_err(|e| e.to_string())?;
 
-    let api_url = std::env::var("SKIN_API_URL")
-        .unwrap_or_else(|_| "http://localhost:3228".to_string());
-
     let part = multipart::Part::bytes(skin_bytes)
         .file_name("skin.png")
         .mime_str("image/png")
@@ -148,7 +168,7 @@ pub async fn upload_skin(
         .part("skin", part);
 
     let response = client
-        .post(&format!("{}/api/upload-skin/{}", api_url, discord_id))
+        .post(&format!("{}/api/upload-skin/{}", SKIN_API_URL, discord_id))
         .multipart(form)
         .send()
         .await
@@ -173,11 +193,8 @@ pub async fn delete_skin(discord_id: String) -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let api_url = std::env::var("SKIN_API_URL")
-        .unwrap_or_else(|_| "http://localhost:3228".to_string());
-
     let response = client
-        .delete(&format!("{}/api/skin/{}", api_url, discord_id))
+        .delete(&format!("{}/api/skin/{}", SKIN_API_URL, discord_id))
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -201,11 +218,8 @@ pub async fn has_custom_skin(discord_id: String) -> Result<bool, String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let api_url = std::env::var("SKIN_API_URL")
-        .unwrap_or_else(|_| "http://localhost:3228".to_string());
-
     let response = client
-        .get(&format!("{}/api/skin/{}", api_url, discord_id))
+        .get(&format!("{}/api/skin/{}", SKIN_API_URL, discord_id))
         .send()
         .await
         .map_err(|e| e.to_string())?;
