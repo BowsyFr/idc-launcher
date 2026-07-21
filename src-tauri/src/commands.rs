@@ -117,3 +117,144 @@ pub async fn get_game_directory() -> Result<String, String> {
     let path = ResourceManager::get_game_dir()?;
     Ok(path.to_string_lossy().to_string())
 }
+
+// ============================================================================
+// Gestion des skins
+// ============================================================================
+
+/// Upload un skin pour un utilisateur
+#[tauri::command]
+pub async fn upload_skin(
+    discord_id: String,
+    skin_bytes: Vec<u8>,
+) -> Result<(), String> {
+    use reqwest::multipart;
+    use std::time::Duration;
+
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let api_url = std::env::var("SKIN_API_URL")
+        .unwrap_or_else(|_| "http://localhost:3228".to_string());
+
+    let part = multipart::Part::bytes(skin_bytes)
+        .file_name("skin.png")
+        .mime_str("image/png")
+        .map_err(|e| e.to_string())?;
+
+    let form = multipart::Form::new()
+        .part("skin", part);
+
+    let response = client
+        .post(&format!("{}/api/upload-skin/{}", api_url, discord_id))
+        .multipart(form)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !response.status().is_success() {
+        let error_text = response.text().await.unwrap_or_default();
+        return Err(format!("API Error: {}", error_text));
+    }
+
+    Ok(())
+}
+
+/// Supprime le skin custom d'un utilisateur
+#[tauri::command]
+pub async fn delete_skin(discord_id: String) -> Result<(), String> {
+    use reqwest::Client;
+    use std::time::Duration;
+
+    let client = Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let api_url = std::env::var("SKIN_API_URL")
+        .unwrap_or_else(|_| "http://localhost:3228".to_string());
+
+    let response = client
+        .delete(&format!("{}/api/skin/{}", api_url, discord_id))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !response.status().is_success() {
+        let error_text = response.text().await.unwrap_or_default();
+        return Err(format!("API Error: {}", error_text));
+    }
+
+    Ok(())
+}
+
+/// Vérifie si un utilisateur a un skin custom
+#[tauri::command]
+pub async fn has_custom_skin(discord_id: String) -> Result<bool, String> {
+    use reqwest::Client;
+    use std::time::Duration;
+
+    let client = Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let api_url = std::env::var("SKIN_API_URL")
+        .unwrap_or_else(|_| "http://localhost:3228".to_string());
+
+    let response = client
+        .get(&format!("{}/api/skin/{}", api_url, discord_id))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if !response.status().is_success() {
+        return Err(format!("API Error: {}", response.status()));
+    }
+
+    let result: serde_json::Value = response
+        .json()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    result["hasCustomSkin"]
+        .as_bool()
+        .ok_or_else(|| "Invalid response format".to_string())
+}
+
+// ============================================================================
+// Gestion du modèle de skin (default/slim)
+// ============================================================================
+
+/// Obtient le modèle de skin pour un utilisateur (default ou slim)
+#[tauri::command]
+pub async fn get_skin_model(
+    discord_id: String,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    let db_guard = state.db.lock().await;
+    match db_guard.as_ref() {
+        Some(db) => db.get_skin_model(&discord_id).await.map_err(|e| e.to_string()),
+        None => Err("Base de données non connectée".to_string()),
+    }
+}
+
+/// Met à jour le modèle de skin pour un utilisateur
+#[tauri::command]
+pub async fn update_skin_model(
+    discord_id: String,
+    model: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    if model != "default" && model != "slim" {
+        return Err("Modèle invalide. Utilisez 'default' ou 'slim'".to_string());
+    }
+
+    let db_guard = state.db.lock().await;
+    match db_guard.as_ref() {
+        Some(db) => db.update_skin_model(&discord_id, &model).await.map_err(|e| e.to_string()),
+        None => Err("Base de données non connectée".to_string()),
+    }
+}

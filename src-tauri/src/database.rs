@@ -1,4 +1,5 @@
 use sqlx::MySqlPool;
+use serde::Serialize;
 
 pub struct Database {
     pool: MySqlPool,
@@ -10,6 +11,13 @@ pub struct User {
     pub discord_id: String,
     pub username: String,
     pub created_at: chrono::DateTime<chrono::Utc>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct PlayerSkin {
+    pub discord_id: String,
+    pub model: String,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
 }
 
 impl Database {
@@ -36,6 +44,18 @@ impl Database {
                 discord_id VARCHAR(255) UNIQUE NOT NULL,
                 username VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            "#,
+        )
+            .execute(&self.pool)
+            .await?;
+
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS player_skins (
+                discord_id VARCHAR(255) PRIMARY KEY,
+                model ENUM('default', 'slim') NOT NULL DEFAULT 'default',
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
             "#,
         )
@@ -82,6 +102,28 @@ impl Database {
         sqlx::query("UPDATE users SET username = ? WHERE discord_id = ?")
             .bind(username)
             .bind(discord_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn get_skin_model(&self, discord_id: &str) -> Result<Option<String>, sqlx::Error> {
+        let row = sqlx::query_as::<_, (String,)>(
+            "SELECT model FROM player_skins WHERE discord_id = ?",
+        )
+            .bind(discord_id)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(row.map(|(model,)| model))
+    }
+
+    pub async fn update_skin_model(&self, discord_id: &str, model: &str) -> Result<(), sqlx::Error> {
+        sqlx::query("INSERT INTO player_skins (discord_id, model) VALUES (?, ?) ON DUPLICATE KEY UPDATE model = ?")
+            .bind(discord_id)
+            .bind(model)
+            .bind(model)
             .execute(&self.pool)
             .await?;
 

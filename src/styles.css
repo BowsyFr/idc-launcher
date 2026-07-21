@@ -357,19 +357,6 @@ input:focus {
   backdrop-filter: blur(6px);
 }
 
-.profil-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 13px;
-  background: linear-gradient(150deg, var(--accent), var(--accent-dim));
-}
-
 .profil-statut-dot {
   position: absolute;
   left: 30px;
@@ -437,4 +424,257 @@ input:focus {
   .jeu-corps {
     padding: 0 28px;
   }
+}
+
+/* ============================================================================
+   Gestion du Skin - Modal et boutons
+   ============================================================================ */
+
+.btn-profil {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  /* Taille fixe indispensable : avatar-skin est en position:absolute,
+     donc il ne contribue jamais a la taille du parent. Sans largeur/
+     hauteur explicites ici, .btn-profil s'effondre a 0x0 des que
+     avatar-initiale est cache (classe .cache), et l'image se retrouve
+     positionnee n'importe ou dans le flex .profil. */
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.btn-profil:hover {
+  opacity: 0.8;
+}
+
+.profil-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg-void);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.profil-avatar-skin {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-contenu {
+  background: var(--bg-surface-2);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+}
+
+.modal-contenu h2 {
+  margin: 0 0 24px;
+  color: var(--text-primary);
+  font-size: 24px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+/* Prévisualisation du skin */
+.skin-preview {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.skin-preview img {
+  max-width: 200px;
+  max-height: 300px;
+  border-radius: 8px;
+  background: var(--bg-surface-3);
+  border: 1px solid var(--border);
+}
+
+/* Sélecteur de modèle */
+.model-selector {
+  margin-bottom: 20px;
+}
+
+.model-selector h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 14px;
+  background: var(--bg-surface-3);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.radio-label:hover {
+  background: var(--bg-surface-2);
+  border-color: var(--accent);
+}
+
+.radio-label input[type="radio"] {
+  display: none;
+}
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--bg-surface);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+
+.radio-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Actions */
+.skin-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-upload {
+  cursor: pointer;
+}
+
+.btn-upload:hover {
+  background: var(--accent-dim) !important;
+}
+
+.btn-secondaire {
+  background: var(--bg-surface-3);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondaire:hover {
+  background: var(--bg-surface);
+  border-color: var(--accent);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: #ff3d57;
+}
+
+.btn-fermer {
+  background: var(--bg-surface-3);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-fermer:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.skin-status {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  margin: 16px 0;
+  min-height: 20px;
+}
+
+.skin-status.success {
+  color: var(--online);
+}
+
+.skin-status.error {
+  color: var(--danger);
 }

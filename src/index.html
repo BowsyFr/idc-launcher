@@ -61,9 +61,51 @@
 
     <div class="jeu-entete">
       <div class="profil">
-        <span class="profil-avatar" id="avatar-initiale">?</span>
+        <button id="btn-profil" class="btn-profil">
+          <span class="profil-avatar" id="avatar-initiale">?</span>
+          <img id="avatar-skin" class="profil-avatar-skin cache" src="" alt="Skin" />
+        </button>
         <span class="profil-statut-dot"></span>
         <span id="texte-connecte" class="profil-nom"></span>
+      </div>
+    </div>
+
+    <!-- Modal Gestion du Skin -->
+    <div id="modal-skin" class="modal cache">
+      <div class="modal-contenu">
+        <h2>Gestion du Skin</h2>
+        
+        <div class="skin-preview">
+          <img id="skin-preview-img" src="" alt="Aperçu du skin" />
+        </div>
+        
+        <div class="model-selector">
+          <h3>Modèle</h3>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="skin-model" value="default" id="model-steve" checked />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Steve</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="skin-model" value="slim" id="model-alex" />
+              <span class="radio-custom"></span>
+              <span class="radio-text">Alex</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="skin-actions">
+          <label class="btn-secondaire btn-upload">
+            Changer de skin
+            <input id="input-skin-upload" type="file" accept=".png" hidden />
+          </label>
+          <button id="btn-delete-skin" class="btn-danger">Supprimer le skin</button>
+        </div>
+        
+        <p id="skin-status" class="skin-status"></p>
+        
+        <button id="btn-close-modal" class="btn-fermer">Fermer</button>
       </div>
     </div>
 
@@ -83,6 +125,6 @@
   <p id="erreur" class="erreur cache"></p>
 </div>
 
-<script type="module" src="main.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

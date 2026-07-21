@@ -96,6 +96,11 @@ pub fn run() {
             commands::check_resources_up_to_date,
             commands::list_server_files,
             commands::get_game_directory,
+            commands::upload_skin,
+            commands::delete_skin,
+            commands::has_custom_skin,
+            commands::get_skin_model,
+            commands::update_skin_model,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
