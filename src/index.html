@@ -56,29 +56,60 @@
   </section>
 
   <!-- Écran 3 : Connecté / Jeu -->
+  <!--
+    Nouvelle disposition inspirée de la réf (sidebar + hero plein écran).
+    Un seul onglet actif pour l'instant ("Accueil") : les autres icônes de
+    la sidebar sont des emplacements réservés pour plus tard (news, boutique...),
+    désactivés (disabled) pour ne pas laisser croire qu'ils font quelque chose.
+  -->
   <section id="ecran-connecte" class="ecran ecran--jeu cache">
     <div class="jeu-fond" aria-hidden="true"></div>
 
-    <div class="jeu-entete">
-      <div class="profil">
-        <button id="btn-profil" class="btn-profil">
-          <span class="profil-avatar" id="avatar-initiale">?</span>
-          <img id="avatar-skin" class="profil-avatar-skin cache" src="" alt="Skin" />
+    <aside class="barre-laterale">
+      <button id="btn-profil" class="avatar-profil" title="Gérer mon skin">
+        <span class="profil-avatar" id="avatar-initiale">?</span>
+        <img id="avatar-skin" class="profil-avatar-skin cache" src="" alt="Skin" />
+        <span class="avatar-statut-dot" aria-hidden="true"></span>
+      </button>
+
+      <nav class="nav-laterale" aria-label="Sections du launcher">
+        <button type="button" class="nav-icone nav-icone--actif" aria-current="page" title="Accueil">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 11.5 12 4l9 7.5" />
+            <path d="M5 10v9.5a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10" />
+          </svg>
         </button>
-        <span class="profil-statut-dot"></span>
-        <span id="texte-connecte" class="profil-nom"></span>
-      </div>
-    </div>
+        <button type="button" class="nav-icone" disabled title="News — bientôt disponible">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="4" y="5" width="16" height="15" rx="2" />
+            <path d="M8 9h8M8 13h8M8 17h5" />
+          </svg>
+        </button>
+        <button type="button" class="nav-icone" disabled title="Boutique — bientôt disponible">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 8h12l-1 12H7L6 8Z" />
+            <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+          </svg>
+        </button>
+      </nav>
+
+      <button type="button" class="nav-icone nav-icone--bas" disabled title="Notifications — bientôt disponible">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 8a6 6 0 0 1 12 0c0 4 1.5 5.5 2 6.5H4c.5-1 2-2.5 2-6.5Z" />
+          <path d="M10 19a2 2 0 0 0 4 0" />
+        </svg>
+      </button>
+    </aside>
 
     <!-- Modal Gestion du Skin -->
     <div id="modal-skin" class="modal cache">
       <div class="modal-contenu">
         <h2>Gestion du Skin</h2>
-        
+
         <div class="skin-preview">
           <img id="skin-preview-img" src="" alt="Aperçu du skin" />
         </div>
-        
+
         <div class="model-selector">
           <h3>Modèle</h3>
           <div class="radio-group">
@@ -94,7 +125,7 @@
             </label>
           </div>
         </div>
-        
+
         <div class="skin-actions">
           <label class="btn-secondaire btn-upload">
             Changer de skin
@@ -102,23 +133,26 @@
           </label>
           <button id="btn-delete-skin" class="btn-danger">Supprimer le skin</button>
         </div>
-        
+
         <p id="skin-status" class="skin-status"></p>
-        
+
         <button id="btn-close-modal" class="btn-fermer">Fermer</button>
       </div>
     </div>
 
-    <div class="jeu-corps">
-      <p class="jeu-eyebrow">Prêt à jouer</p>
-      <h1 class="jeu-titre">IDC</h1>
-      <p class="jeu-tagline">Le serveur t'attend. Un clic, et tu es en jeu.</p>
-      <button id="btn-jouer" class="btn-principal btn-jouer">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-        Jouer
-      </button>
+    <div class="jeu-principal">
+      <span id="texte-connecte" class="sr-only"></span>
+      <div class="jeu-corps">
+        <p class="jeu-eyebrow">Serveur officiel</p>
+        <h1 class="jeu-titre">IDC</h1>
+        <p class="jeu-tagline">Le serveur t'attend. Un clic, et tu es en jeu.</p>
+        <button id="btn-jouer" class="btn-principal btn-jouer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          Jouer
+        </button>
+      </div>
     </div>
   </section>
 

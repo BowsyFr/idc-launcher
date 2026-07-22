@@ -456,10 +456,16 @@ if (modalSkin) {
   });
 }
 
-// Mettre a jour l'avatar quand on se connecte
+// Mettre a jour le profil (avatar + tooltip) quand on se connecte.
+// Le nom du joueur n'est plus affiché en texte visible dans la sidebar
+// (la réf n'affiche que l'avatar) : il reste disponible au survol de
+// l'avatar (title) et pour les lecteurs d'écran (#texte-connecte, sr-only).
 function definirProfil(nom) {
   document.getElementById("texte-connecte").textContent = `Connecte en tant que ${nom}`;
   avatarInitiale.textContent = (nom[0] || "?").toUpperCase();
+  if (btnProfil) {
+    btnProfil.title = `${nom} — gérer mon skin`;
+  }
 
   // Charger l'avatar et le modèle si on a discordUserCourant
   if (discordUserCourant && discordUserCourant.id) {
